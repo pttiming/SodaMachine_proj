@@ -23,13 +23,26 @@ namespace SodaMachine
 
         }
         //Methods
+        //Reduces available funds once a charge is completed
         public void AddCharge(double charge)
         {
             availableFunds -= charge;
         }
+        //Restores available funds due to a return or failed transaction
         public void ReverseCharge(double charge)
         {
             availableFunds += charge;
+        }
+        public bool CheckFunds(double charge)
+        {
+            if(availableFunds >= charge)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
