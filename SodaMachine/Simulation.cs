@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    class Machine
+    class Simulation
     {
-        //Member Variables
-
-        //Constructor
-
-        //Methods
     }
 }

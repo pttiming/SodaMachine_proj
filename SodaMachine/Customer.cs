@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    class CreditCard : PaymentMethod
+    class Customer
     {
         //Member Variables
+        public Wallet wallet;
+        public Backpack backpack;
 
         //Constructor
+        public Customer()
+        {
+            wallet = new Wallet();
+            backpack = new Backpack();
+        }
 
         //Methods
     }

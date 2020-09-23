@@ -11,7 +11,17 @@ namespace SodaMachine
         //Member Variables
 
         //Constructor
+        public Cola()
+        {
+            sodaCost = .35;
+            sodaName = "Cola";
+            sodaType = "Cola";
+        }
 
         //Methods
+        public override Soda GetSodaType(string sodaType)
+        {
+            return new Cola();
+        }
     }
 }
