@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    class RootBeer
+    class RootBeer : Soda
     {
+        //Member Variables
+
+        //Constructor
+
+        //Methods
     }
 }

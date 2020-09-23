@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    abstract class Soda
+    class PaymentMethod
     {
-        //Member Variables
-
-        //Constructor
-
-        //Methods
     }
 }
