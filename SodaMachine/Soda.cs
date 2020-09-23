@@ -31,6 +31,6 @@ namespace SodaMachine
 
         }
         //Methods
-        public abstract Soda GetSodaType(string sodaName);
+        public abstract Soda GetSodaType(string sodaType);
     }
 }
