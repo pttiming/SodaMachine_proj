@@ -11,6 +11,10 @@ namespace SodaMachine
         //Member Variables
 
         //Constructor
+        public Penny()
+        {
+            value = .01;
+        }
 
         //Methods
     }

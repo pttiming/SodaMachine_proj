@@ -11,7 +11,10 @@ namespace SodaMachine
         //Member Variables
 
         //Constructor
-
+        public Quarter()
+        {
+            value = .25;
+        }
         //Methods
     }
 }

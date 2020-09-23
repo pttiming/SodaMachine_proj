@@ -11,6 +11,10 @@ namespace SodaMachine
         //Member Variables
 
         //Constructor
+        public Dime()
+        {
+            value = .10;
+        }
 
         //Methods
     }

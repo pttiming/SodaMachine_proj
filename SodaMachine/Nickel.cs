@@ -11,7 +11,10 @@ namespace SodaMachine
         //Member Variables
 
         //Constructor
-
+        public Nickel()
+        {
+            value = .05;
+        }
         //Methods
     }
 }
