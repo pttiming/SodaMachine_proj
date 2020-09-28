@@ -17,9 +17,6 @@ namespace SodaMachine
             name = "Quarter";
         }
         //Methods
-        public override Coin GetCoinName(string coinType)
-        {
-            return new Quarter();
-        }
+      
     }
 }

@@ -18,9 +18,6 @@ namespace SodaMachine
         }
 
         //Methods
-        public override Coin GetCoinName(string coinType)
-        {
-            return new Dime();
-        }
+        
     }
 }

@@ -18,9 +18,6 @@ namespace SodaMachine
             sodaType = "RootBeer";
         }
         //Methods
-        public override Can GetSodaType(string sodaType)
-        {
-            return new RootBeer();
-        }
+        
     }
 }

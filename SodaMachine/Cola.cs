@@ -19,9 +19,5 @@ namespace SodaMachine
         }
 
         //Methods
-        public override Can GetSodaType(string sodaType)
-        {
-            return new Cola();
-        }
     }
 }

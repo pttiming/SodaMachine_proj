@@ -17,9 +17,6 @@ namespace SodaMachine
             name = "Nickel";
         }
         //Methods
-        public override Coin GetCoinName(string coinType)
-        {
-            return new Nickel();
-        }
+        
     }
 }

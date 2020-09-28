@@ -28,6 +28,6 @@ namespace SodaMachine
         }
 
         //Methods
-        public abstract Coin GetCoinName(string coinType);
+       
     }
 }
