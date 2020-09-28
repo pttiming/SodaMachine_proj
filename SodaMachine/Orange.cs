@@ -18,9 +18,5 @@ namespace SodaMachine
             sodaType = "Orange";
         }
         //Methods
-        public override Can GetSodaType(string sodaType)
-        {
-            return new Orange();
-        }
     }
 }
