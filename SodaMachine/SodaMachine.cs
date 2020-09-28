@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace SodaMachine
         //Member Variables
         List<Coin> register;
         List<Coin> payment;
-        List<Coin> potentialRegister;
+        List<Coin> change;
         public List<Can> inventory;
         int initialColaInventory;
         int initialOrangeInventory;
@@ -22,10 +23,7 @@ namespace SodaMachine
         int initialDimesInRegister;
         int initialNickelsInRegister;
         int initialPenniesInRegister;
-        Quarter quarter;
-        Dime dime;
-        Nickel nickel;
-        Penny penny;
+
         double maxPrice;
 
 
@@ -42,19 +40,16 @@ namespace SodaMachine
             register = new List<Coin>();
             payment = new List<Coin>();
             inventory = new List<Can>();
-            quarter = new Quarter();
-            dime = new Dime();
-            nickel = new Nickel();
-            penny = new Penny();
+            change = new List<Coin>();
 
 
             StockCan<Cola>(initialColaInventory);
             StockCan<RootBeer>(initialRootBeerInventory);
             StockCan<Orange>(initialOrangeInventory);
-            DepositCoinToRegister<Quarter>(initialQuartersInRegister);
-            DepositCoinToRegister<Dime>(initialDimesInRegister);
-            DepositCoinToRegister<Nickel>(initialNickelsInRegister);
-            DepositCoinToRegister<Penny>(initialPenniesInRegister);
+            DepositCoinToList<Quarter>(initialQuartersInRegister, register);
+            DepositCoinToList<Dime>(initialDimesInRegister, register);
+            DepositCoinToList<Nickel>(initialNickelsInRegister, register);
+            DepositCoinToList<Penny>(initialPenniesInRegister, register);
 
 
         }
@@ -62,14 +57,14 @@ namespace SodaMachine
         //Methods
 
         //Generic Method to add Initial Coins to Register
-        public void DepositCoinToRegister<T>(int count) where T : Coin, new()
+        public void DepositCoinToList<T>(int count, List<Coin> list) where T : Coin, new()
         {
             T coin;
 
             for (int i = 0; i < count; i++)
             {
                 coin = new T();
-                register.Add(coin);
+                list.Add(coin);
             }
         }
         //Generic Method to add Cans to Inventory
@@ -90,8 +85,8 @@ namespace SodaMachine
         //Dispenses Can from Soda Machine to Backpack
         public void DistributeCan(Can can, Customer customer)
         {
-            inventory.Remove(can);
             customer.backpack.AddCanToBackpack(can);
+            inventory.Remove(can);
         }
         //Adds payment amount to Register
         public void DepositPaymentInRegister()
@@ -122,28 +117,34 @@ namespace SodaMachine
             {
                 paymentValue += coin.Value;
             }
-            return paymentValue;
+            return Math.Round(paymentValue,2);
         }
         //Checks to see if Transaction Can Continue based on Scenarios from User Stories
-        public void CheckTransaction(Can can, Customer customer)
+        public void CheckTransaction(Customer customer, string canName, SodaMachine sodaMachine)
         {
-            if (CheckInventory(can))
+            if (CheckInventory(canName))
             {
-                if (PaymentValue() == can.SodaCost)
+                Can desiredCan = GetDesiredCan(canName);
+                if (PaymentValue() == desiredCan.SodaCost)
                 {
-                    DistributeCan(can, customer);
+                    DistributeCan(desiredCan, customer);
+                    customer.CheckBackpackStock();
                     DepositPaymentInRegister();
+                    UserInterface.MainMenu(customer, sodaMachine);
                 }
-                else if (PaymentValue() < can.SodaCost)
+                else if (PaymentValue() < desiredCan.SodaCost)
                 {
                     UserInterface.DisplayMessage("Insufficent Funds Deposited, Come back when you can afford it");
                     ReturnCoinsToWallet(customer);
+                    UserInterface.MainMenu(customer, sodaMachine);
                 }
-                else if (PaymentValue() > can.SodaCost && SufficientChangeExists(can, customer))
+                else if (PaymentValue() > desiredCan.SodaCost && SufficientChangeExists(desiredCan, customer))
                 {
-                    DistributeCan(can, customer);
+                    DistributeCan(desiredCan, customer);
+                    customer.CheckBackpackStock();
                     DepositPaymentInRegister();
-                    GiveChange(can, customer);
+                    GiveChange(desiredCan, customer);
+                    UserInterface.MainMenu(customer, sodaMachine);
 
                 }
             }
@@ -151,47 +152,155 @@ namespace SodaMachine
             {
                 UserInterface.DisplayMessage("Item of stock");
                 ReturnCoinsToWallet(customer);
+                UserInterface.MainMenu(customer, sodaMachine);
             }
             
             
         }
+        
         //Redeposits Coins to Wallet in case of failed transaction
         public void ReturnCoinsToWallet(Customer customer)
         {
             foreach(Coin coin in payment)
             {
                 customer.wallet.coins.Add(coin);
-                payment.Remove(coin);
-
             }
+            payment.Clear();
         }
         //Checks to see if there is enough change in Soda Machine Register to Issue necessary change to Customer
         public bool SufficientChangeExists(Can can, Customer customer)
         {
-            if (Change.ChangeNeeded(can.SodaCost, PaymentValue()) > 0  && CorrectChangeAvailable())
+            if (CorrectChangeAvailable(can, customer))
             {
                 return true;
             }
             return false;
         }
         //Checks to make sure the machine has the right coin counts to issue the exact amount of necessary change
-        public bool CorrectChangeAvailable()
+        public bool CorrectChangeAvailable(Can can, Customer customer)
         {
-            if (0 == 0)
+            double cost = can.SodaCost;
+            double changeDue = PaymentValue() - cost;
+            List<Coin> registerPlusPayment = new List<Coin>();
+            registerPlusPayment.AddRange(register);
+            registerPlusPayment.AddRange(payment);
+            int quarterAvailable = registerPlusPayment.OfType<Quarter>().Count();
+            int dimeAvailable = registerPlusPayment.OfType<Dime>().Count();
+            int nickelAvailable = registerPlusPayment.OfType<Nickel>().Count();
+            int pennyAvailable = registerPlusPayment.OfType<Penny>().Count();
+            int quarterNeeded = 0;
+            int dimeNeeded = 0;
+            int nickelNeeded = 0;
+            int pennyNeeded = 0;
+
+            while (changeDue > .24 && quarterAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .25;
+                quarterAvailable--;
+                quarterNeeded++;
+            }
+            while (changeDue > .09 && dimeAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .10;
+                dimeAvailable--;
+                dimeNeeded++;
+            }
+            while (changeDue > .04 && nickelAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .05;
+                nickelAvailable--;
+                nickelNeeded++;
+            }
+            while (changeDue > .00 && pennyAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .01;
+                pennyAvailable--;
+                pennyNeeded++;
+            }
+            changeDue = Math.Round(changeDue, 2);
+
+            DepositCoinToList<Quarter>(quarterNeeded, change);
+            DepositCoinToList<Dime>(dimeNeeded, change);
+            DepositCoinToList<Nickel>(nickelNeeded, change); 
+            DepositCoinToList<Penny>(pennyNeeded, change);
+            
+            if (changeDue == 0)
             {
                 return true;
             }
             return false;
         }
+
+        public void CorrectChangeCalculation(Can can, Customer customer)
+        {
+            double cost = can.SodaCost;
+            double changeDue = PaymentValue() - cost;
+            List<Coin> registerPlusPayment = new List<Coin>();
+            registerPlusPayment.AddRange(register);
+            registerPlusPayment.AddRange(payment);
+            int quarterAvailable = registerPlusPayment.OfType<Quarter>().Count();
+            int dimeAvailable = registerPlusPayment.OfType<Dime>().Count();
+            int nickelAvailable = registerPlusPayment.OfType<Nickel>().Count();
+            int pennyAvailable = registerPlusPayment.OfType<Penny>().Count();
+            int quarterNeeded = 0;
+            int dimeNeeded = 0;
+            int nickelNeeded = 0;
+            int pennyNeeded = 0;
+
+            while (changeDue > .24 && quarterAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .25;
+                quarterAvailable--;
+                quarterNeeded++;
+            }
+            while (changeDue > .09 && dimeAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .10;
+                dimeAvailable--;
+                dimeNeeded++;
+            }
+            while (changeDue > .04 && nickelAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .05;
+                nickelAvailable--;
+                nickelNeeded++;
+            }
+            while (changeDue > .00 && pennyAvailable > 0)
+            {
+                changeDue = Math.Round(changeDue, 2);
+                changeDue -= .01;
+                pennyAvailable--;
+                pennyNeeded++;
+            }
+            changeDue = Math.Round(changeDue, 2);
+
+            DepositCoinToList<Quarter>(quarterNeeded, change);
+            DepositCoinToList<Dime>(dimeNeeded, change);
+            DepositCoinToList<Nickel>(nickelNeeded, change);
+            DepositCoinToList<Penny>(pennyNeeded, change);
+        }
         //Issues Change to Customer
         public void GiveChange(Can can, Customer customer)
         {
+            customer.wallet.coins.AddRange(change);
+            foreach(Coin coin in change)
+            {
+                register.Remove(coin);
+            }
+            change.Clear();
 
         }
         //Checks to see if the can exists in inventory
-        public bool CheckInventory(Can can)
+        public bool CheckInventory(string canName)
         {
-            Can desiredCan = inventory.Find(delegate (Can c) { return c.SodaType == can.SodaType; });
+            Can desiredCan = inventory.Find(delegate (Can c) { return c.sodaName == canName; });
             if(desiredCan != null)
             {
                 return true;
@@ -200,18 +309,18 @@ namespace SodaMachine
             
         }
         //Gets the index of the first can that matches the desired can in inventory
-        public int GetDesiredCanID(Can can)
+        public int GetDesiredCanID(string canType)
         {
             int canID;
 
-            canID = inventory.FindIndex(delegate (Can c) { return c.SodaType == can.SodaType; });
+            canID = inventory.FindIndex(delegate (Can c) { return c.SodaType == canType; });
 
             return canID;
         }
         //Gets Can object of matching desired can
-        public Can GetDesiredCan(Can can)
+        public Can GetDesiredCan(string canName)
         {
-            Can desiredCan = inventory.Find(delegate(Can can1) { return can1.SodaType == can.SodaType; });
+            Can desiredCan = inventory.Find(delegate(Can can1) { return can1.sodaName == canName; });
             return desiredCan;
         }
         //Calculates the Highest Price of any item in inventory
@@ -234,13 +343,22 @@ namespace SodaMachine
             }
         }
         //Takes a coin from wallet and puts it into the temporary payment list
-        public void AddCoinToPayment(Coin coin)
+        public void AddCoinToPayment(Coin coin, Customer customer, SodaMachine sodaMachine)
         {
             if (maxPrice > PaymentValue())
             {
                 payment.Add(coin);
+                customer.wallet.coins.Remove(coin);
+                
             }
-            UserInterface.DisplayMessage("Current amount deposited meets or exceeds max item price.  Please select desired item");
+            else
+            {
+                UserInterface.DisplayMessage("Current amount deposited meets or exceeds max item price.  Please select desired item");
+                UserInterface.DisplayAvailableCans(customer, sodaMachine);
+            }
+            UserInterface.MenuTwo(customer, sodaMachine);
+            
+
         }
 
     }

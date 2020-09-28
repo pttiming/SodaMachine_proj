@@ -106,5 +106,11 @@ namespace SodaMachine
             rootbeerCount = backpack.cans.OfType<RootBeer>().Count();
             
         }
+        //Gets Can object of matching desired can
+        public Coin GetDesiredCoin(string coinType)
+        {
+            Coin desiredCoin = wallet.coins.Find(delegate (Coin coin1) { return coin1.name == coinType; });
+            return desiredCoin;
+        }
     }
 }

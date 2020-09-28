@@ -25,7 +25,7 @@ namespace SodaMachine
         {
             UserInterface.DisplayMessage("Welcome to the Soda Machine");
             UserInterface.DisplayMessage("What would you like to do?");
-            UserInterface.MainMenu(customer);
+            UserInterface.MainMenu(customer, sodaMachine);
             Console.ReadLine();
 
         }
