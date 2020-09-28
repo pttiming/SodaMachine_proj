@@ -147,6 +147,13 @@ namespace SodaMachine
                     UserInterface.MainMenu(customer, sodaMachine);
 
                 }
+                else if (PaymentValue() > desiredCan.SodaCost && !SufficientChangeExists(desiredCan, customer))
+                {
+                    UserInterface.DisplayMessage("Please use correct change and try the transaction again.");
+                    ReturnCoinsToWallet(customer);
+                    UserInterface.MainMenu(customer, sodaMachine);
+
+                }
             }
             else
             {
@@ -355,17 +362,10 @@ namespace SodaMachine
         //Takes a coin from wallet and puts it into the temporary payment list
         public void AddCoinToPayment(Coin coin, Customer customer, SodaMachine sodaMachine)
         {
-            if (maxPrice > PaymentValue())
-            {
-                payment.Add(coin);
-                customer.wallet.coins.Remove(coin);
-                
-            }
-            else
-            {
-                UserInterface.DisplayMessage("Current amount deposited meets or exceeds max item price.  Please select desired item");
-                UserInterface.DisplayAvailableCans(customer, sodaMachine);
-            }
+            
+            payment.Add(coin);
+            customer.wallet.coins.Remove(coin);
+             
             UserInterface.MenuTwo(customer, sodaMachine);
             
 

@@ -15,7 +15,6 @@ namespace SodaMachine
         //Methods
         public static void MainMenu(Customer customer, SodaMachine sodaMachine)
         {
-            sodaMachine.RegisterValue();
             Console.WriteLine("1. Make a Purchase");
             Console.WriteLine("2. View Wallet Contents");
             Console.WriteLine("3. View Backpack Contents");
@@ -25,7 +24,6 @@ namespace SodaMachine
             switch (userInput)
             {
                 case "1":
-                    sodaMachine.HighestPrice();
                     MenuTwo(customer, sodaMachine);
                     break;
                 case "2":
@@ -135,7 +133,6 @@ namespace SodaMachine
         }
         public static void DepositCoinsMenu(Customer customer, SodaMachine sodaMachine)
         {
-            Console.Clear();
             Console.WriteLine("Which Coin Type would you like to deposit?");
             Console.WriteLine("");
             Console.WriteLine($"1. Quarter: {customer.QuarterCount} available");

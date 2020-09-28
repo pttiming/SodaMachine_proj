@@ -15,7 +15,7 @@ namespace SodaMachine
         //Constuctor
         public Simulation()
         {
-            sodaMachine = new SodaMachine(20, 10, 20, 50, 5, 5, 10);
+            sodaMachine = new SodaMachine(1, 1, 1, 1, 5, 5, 10);
             customer = new Customer();
 
         }
