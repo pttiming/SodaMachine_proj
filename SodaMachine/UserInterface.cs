@@ -15,6 +15,7 @@ namespace SodaMachine
         //Methods
         public static void MainMenu(Customer customer, SodaMachine sodaMachine)
         {
+            sodaMachine.RegisterValue();
             Console.WriteLine("1. Make a Purchase");
             Console.WriteLine("2. View Wallet Contents");
             Console.WriteLine("3. View Backpack Contents");

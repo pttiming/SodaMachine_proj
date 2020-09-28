@@ -292,7 +292,7 @@ namespace SodaMachine
             customer.wallet.coins.AddRange(change);
             foreach(Coin coin in change)
             {
-                register.Remove(coin);
+                RemoveCoin(coin.name);
             }
             change.Clear();
 
@@ -316,6 +316,16 @@ namespace SodaMachine
             canID = inventory.FindIndex(delegate (Can c) { return c.SodaType == canType; });
 
             return canID;
+        }
+
+        public void RemoveCoin(string coinType)
+        {
+            int coinID;
+
+            coinID = register.FindIndex(delegate (Coin c) { return c.name == coinType; });
+
+            register.Remove(register[coinID]);
+
         }
         //Gets Can object of matching desired can
         public Can GetDesiredCan(string canName)
