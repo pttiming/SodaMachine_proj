@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    class Orange : Soda
+    class Orange : Can
     {
         //Member Variables
 
@@ -18,7 +18,7 @@ namespace SodaMachine
             sodaType = "Orange";
         }
         //Methods
-        public override Soda GetSodaType(string sodaType)
+        public override Can GetSodaType(string sodaType)
         {
             return new Orange();
         }

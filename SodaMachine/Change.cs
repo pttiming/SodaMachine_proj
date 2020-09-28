@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    class Program
+    public static class Change
     {
-        static void Main(string[] args)
+        public static double ChangeNeeded(double payment, double cost)
         {
-            Simulation simulation;
-            simulation = new Simulation();
-            simulation.RunSimulation();
+            double change = payment - cost;
+            return change;
         }
     }
 }

@@ -14,7 +14,12 @@ namespace SodaMachine
         public Quarter()
         {
             value = .25;
+            name = "Quarter";
         }
         //Methods
+        public override Coin GetCoinName(string coinType)
+        {
+            return new Quarter();
+        }
     }
 }

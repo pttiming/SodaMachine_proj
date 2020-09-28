@@ -10,6 +10,7 @@ namespace SodaMachine
     {
         //Member Variables
         protected double value;
+        public string name;
 
         //Properties
         public double Value
@@ -27,5 +28,6 @@ namespace SodaMachine
         }
 
         //Methods
+        public abstract Coin GetCoinName(string coinType);
     }
 }

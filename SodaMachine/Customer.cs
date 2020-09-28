@@ -15,7 +15,7 @@ namespace SodaMachine
         //Constructor
         public Customer()
         {
-            wallet = new Wallet();
+            wallet = new Wallet(10,10,9,8,7);
             backpack = new Backpack();
         }
 

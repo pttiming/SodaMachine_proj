@@ -15,7 +15,7 @@ namespace SodaMachine
         //Methods
         public static void DisplayAvailableSoda()
         {
-
+            
         }
         public static void DisplayPaymentMenu()
         {
@@ -37,9 +37,9 @@ namespace SodaMachine
 
         }
 
-        public static void UseCorrectChange()
+        public static void DisplayMessage(string message)
         {
-            Console.WriteLine("Unable to complete transaction.  Please use exact change only");
+            Console.WriteLine(message);
         }
 
         public static void InsufficientInventory()

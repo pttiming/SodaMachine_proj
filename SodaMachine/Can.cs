@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SodaMachine
 {
-    public abstract class Soda
+    public abstract class Can
     {
         //Member Variables
-        protected string sodaName;
+        public string sodaName;
         protected double sodaCost;
         protected string sodaType;
 
@@ -26,11 +26,11 @@ namespace SodaMachine
 
 
         //Constructor
-        public Soda()
+        public Can()
         {
 
         }
         //Methods
-        public abstract Soda GetSodaType(string sodaType);
+        public abstract Can GetSodaType(string sodaType);
     }
 }

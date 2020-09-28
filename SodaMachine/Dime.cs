@@ -14,8 +14,13 @@ namespace SodaMachine
         public Dime()
         {
             value = .10;
+            name = "Dime";
         }
 
         //Methods
+        public override Coin GetCoinName(string coinType)
+        {
+            return new Dime();
+        }
     }
 }

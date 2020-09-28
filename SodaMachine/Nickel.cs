@@ -14,7 +14,12 @@ namespace SodaMachine
         public Nickel()
         {
             value = .05;
+            name = "Nickel";
         }
         //Methods
+        public override Coin GetCoinName(string coinType)
+        {
+            return new Nickel();
+        }
     }
 }
