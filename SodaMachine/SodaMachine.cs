@@ -100,11 +100,14 @@ namespace SodaMachine
             int colaCount = inventory.OfType<Cola>().Count();
             int oragneCount = inventory.OfType<Orange>().Count();
             Console.WriteLine($"Root Beer:{rootbeerCount} Cola:{colaCount} Orange{oragneCount}");
+
         }
 
-        public void DistributeCan(Can can)
+        public void DistributeCan(Can can, Customer customer)
         {
             inventory.Remove(can);
+            customer.backpack.AddCanToBackpack(can);
+
 
         }
 
@@ -161,15 +164,24 @@ namespace SodaMachine
 
         public void CheckTransaction(Can can, Customer customer)
         {
+            
+            
             if (PaymentValue() == can.SodaCost)
             {
-                DistributeCan(can);
+                DistributeCan(can, customer);
                 DepositPaymentInRegister();
             }
             else if(PaymentValue() < can.SodaCost)
             {
                 UserInterface.DisplayMessage("Insufficent Funds Deposited, Come back when you can afford it");
                 ReturnCoinsToWallet(customer);
+            }
+            else if(PaymentValue() > can.SodaCost && SufficientChangeExists(can, customer))
+            {
+                DistributeCan(can, customer);
+                DepositPaymentInRegister();
+                GiveChange(can, customer);
+
             }
         }
 
@@ -181,6 +193,49 @@ namespace SodaMachine
                 payment.Remove(coin);
 
             }
+        }
+
+        public bool SufficientChangeExists(Can can, Customer customer)
+        {
+            if (Change.ChangeNeeded(can.SodaCost, PaymentValue()) > 0  && CorrectChangeAvailable())
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool CorrectChangeAvailable()
+        {
+            if (0 == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void GiveChange(Can can, Customer customer)
+        {
+
+        }
+
+        public bool CheckInventory(Can can)
+        {
+            Can desiredCan = inventory.Find(delegate (Can c) { return c.SodaType == can.SodaType; });
+            if(desiredCan != null)
+            {
+                return true;
+            }
+            return false;
+            
+        }
+
+        public int GetDesiredCanID(Can can)
+        {
+            int canID;
+
+            canID = inventory.FindIndex(delegate (Can c) { return c.SodaType == can.SodaType; });
+
+            return canID;
         }
 
         //public void DisplayOfferings()

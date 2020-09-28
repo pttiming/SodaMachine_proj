@@ -15,7 +15,7 @@ namespace SodaMachine
         //Constuctor
         public Simulation()
         {
-            sodaMachine = new SodaMachine(20, 10, 20, 50, 5, 6, 7);
+            sodaMachine = new SodaMachine(20, 10, 20, 50, 5, 1, 1);
             customer = new Customer();
 
         }
@@ -24,10 +24,27 @@ namespace SodaMachine
         public void RunSimulation()
         {
             UserInterface.DisplayMessage("Welcome to the Soda Machine");
+            Cola testCola = new Cola();
+            Orange testOrange = new Orange();
 
-            sodaMachine.ListInventory();
+            if (sodaMachine.CheckInventory(testCola))
+            {
+                Console.WriteLine("Cola True");
+            }
+            else
+            {
+                Console.WriteLine("Cola False");
+            }
 
-
+            if (sodaMachine.CheckInventory(testOrange))
+            {
+                Console.WriteLine("Orange True");
+            }
+            else
+            {
+                Console.WriteLine("Orange False");
+            }
+            
 
             Console.ReadLine();
 

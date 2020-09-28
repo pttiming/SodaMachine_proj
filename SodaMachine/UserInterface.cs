@@ -27,15 +27,14 @@ namespace SodaMachine
 
         }
 
-        public static void DisplayWalletContents()
+        public static void DisplayWalletContents(Customer customer)
         {
+            foreach(Coin coin in customer.wallet.coins)
+            {
 
+            }
         }
 
-        public static void InsufficentFunds()
-        {
-
-        }
 
         public static void DisplayMessage(string message)
         {
