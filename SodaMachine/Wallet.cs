@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,10 +12,6 @@ namespace SodaMachine
         //Member Variables
         public List<Coin> coins;
         public Card card;
-        Quarter quarter;
-        Dime dime;
-        Nickel nickel;
-        Penny penny;
         int pennyCount;
         int nickelCount;
         int dimeCount;
@@ -29,17 +26,24 @@ namespace SodaMachine
             this.quarterCount = quarterCount;
             coins = new List<Coin>();
             card = new Card(cardValue);
-            quarter = new Quarter();
-            dime = new Dime();
-            nickel = new Nickel();
-            penny = new Penny();
+            PopulateCoinsInWallet<Quarter>(quarterCount);
+            PopulateCoinsInWallet<Dime>(dimeCount);
+            PopulateCoinsInWallet<Nickel>(nickelCount);
+            PopulateCoinsInWallet<Penny>(pennyCount);
 
         }
 
         //Methods
-        public void PopulateCoinsInWallet()
+        public void PopulateCoinsInWallet<T>(int count) where T : Coin, new()
         {
-            
+            T coin;
+            for (int i = 0; i < count; i++)
+            {
+                coin = new T();
+                coins.Add(coin);
+            }
+
+
         }
     }
 }

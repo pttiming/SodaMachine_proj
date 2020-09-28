@@ -27,9 +27,11 @@ namespace SodaMachine
                     DepositCoinsMenu(customer);
                     break;
                 case "2":
+                    Console.Clear();
                     DisplayWalletContents(customer);
                     break;
                 case "3":
+                    Console.Clear();
                     DisplayBackpackContents(customer);
                     break;
                 case "4":
@@ -41,17 +43,26 @@ namespace SodaMachine
                     Console.WriteLine();
                     MainMenu(customer);
                     break;
-
-
-
-
-
             }
 
         }
         public static void DisplayBackpackContents(Customer customer)
         {
-
+            if(customer.backpack.cans == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Backpack is Currently Empty");
+                MainMenu(customer);
+            }
+            else
+            {
+                Console.WriteLine("Backpack Contains");
+                Console.WriteLine($"{customer.ColaCount} Cola Cans");
+                Console.WriteLine($"{customer.OrangeCount} Orange Cans");
+                Console.WriteLine($"{customer.RootbeerCount} Root Beer Cans");
+                Console.WriteLine("");
+                MainMenu(customer);
+            }
         }
         public static void DisplayAvailableSoda()
         {
@@ -71,6 +82,8 @@ namespace SodaMachine
             Console.WriteLine($"You have {customer.DimeCount} Dimes");
             Console.WriteLine($"You have {customer.NickelCount} Nickels");
             Console.WriteLine($"You have {customer.PennyCount} Pennies");
+            Console.WriteLine("");
+            MainMenu(customer);
         }
 
 

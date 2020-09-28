@@ -15,6 +15,9 @@ namespace SodaMachine
         int dimeCount;
         int nickelCount;
         int pennyCount;
+        int colaCount;
+        int orangeCount;
+        int rootbeerCount;
 
         public int QuarterCount
         {
@@ -47,11 +50,34 @@ namespace SodaMachine
                 return pennyCount;
             }
         }
+        public int RootbeerCount
+        {
+            get
+            {
+                return rootbeerCount;
+            }
+        }
+
+        public int OrangeCount
+        {
+            get
+            {
+                return orangeCount;
+            }
+        }
+
+        public int ColaCount
+        {
+            get
+            {
+                return colaCount;
+            }
+        }
 
         //Constructor
         public Customer()
         {
-            wallet = new Wallet(10,10,9,8,7);
+            wallet = new Wallet(5,50,20,20,10);
             backpack = new Backpack();
         }
 
@@ -72,6 +98,13 @@ namespace SodaMachine
             dimeCount = wallet.coins.OfType<Dime>().Count();
             nickelCount = wallet.coins.OfType<Nickel>().Count();
             pennyCount = wallet.coins.OfType<Penny>().Count();
+        }
+        public void CheckBackpackStock()
+        {
+            colaCount = backpack.cans.OfType<Cola>().Count();
+            orangeCount = backpack.cans.OfType<Orange>().Count();
+            rootbeerCount = backpack.cans.OfType<RootBeer>().Count();
+            
         }
     }
 }
