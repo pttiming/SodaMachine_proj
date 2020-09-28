@@ -50,7 +50,6 @@
     <Compile Include="Card.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="Dime.cs" />
-    <Compile Include="GenericComparer.cs" />
     <Compile Include="SodaMachine.cs" />
     <Compile Include="Nickel.cs" />
     <Compile Include="Orange.cs" />

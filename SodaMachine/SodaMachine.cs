@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace SodaMachine
         //Member Variables
         List<Coin> register;
         List<Coin> payment;
-        List<Can> offerings;
+        List<Coin> potentialRegister;
         public List<Can> inventory;
         int initialColaInventory;
         int initialOrangeInventory;
@@ -21,13 +22,11 @@ namespace SodaMachine
         int initialDimesInRegister;
         int initialNickelsInRegister;
         int initialPenniesInRegister;
-        public Cola cola;
-        public Orange orange;
-        public RootBeer rootbeer;
         Quarter quarter;
         Dime dime;
         Nickel nickel;
         Penny penny;
+        double maxPrice;
 
 
         //Constructor
@@ -43,82 +42,58 @@ namespace SodaMachine
             register = new List<Coin>();
             payment = new List<Coin>();
             inventory = new List<Can>();
-            offerings = new List<Can>();
-            cola = new Cola();
-            orange = new Orange();
-            rootbeer = new RootBeer();
             quarter = new Quarter();
             dime = new Dime();
             nickel = new Nickel();
             penny = new Penny();
 
 
-            InitialSodaInventory(initialColaInventory, cola, "Cola");
-            InitialSodaInventory(initialRootBeerInventory, rootbeer, "RootBeer");
-            InitialSodaInventory(initialOrangeInventory, orange, "Orange");
-            DepositCoinToRegister(initialQuartersInRegister, quarter, "Quarter");
-            DepositCoinToRegister(initialDimesInRegister, dime, "Dime");
-            DepositCoinToRegister(initialNickelsInRegister, nickel, "Nickel");
-            DepositCoinToRegister(initialPenniesInRegister, penny, "Penny");
-            offerings.Add(cola);
-            offerings.Add(orange);
-            offerings.Add(rootbeer);
+            StockCan<Cola>(initialColaInventory);
+            StockCan<RootBeer>(initialRootBeerInventory);
+            StockCan<Orange>(initialOrangeInventory);
+            DepositCoinToRegister<Quarter>(initialQuartersInRegister);
+            DepositCoinToRegister<Dime>(initialDimesInRegister);
+            DepositCoinToRegister<Nickel>(initialNickelsInRegister);
+            DepositCoinToRegister<Penny>(initialPenniesInRegister);
 
 
         }
 
         //Methods
 
-        // consider "generic constraints"
-        public void DepositCoinToRegister(int count, Coin coin, string coinName)
+        //Generic Method to add Initial Coins to Register
+        public void DepositCoinToRegister<T>(int count) where T : Coin, new()
         {
-            Coin newcoin;
+            T coin;
 
             for (int i = 0; i < count; i++)
             {
-                newcoin = coin.GetCoinName(coinName);
-                register.Add(newcoin);
+                coin = new T();
+                register.Add(coin);
             }
         }
-        public void InitialSodaInventory(int inventorycount,Can soda, string sodaType )
+        //Generic Method to add Cans to Inventory
+        public void StockCan<T>(int count) where T : Can, new()
         {
-            Can newsoda;
+            T can;
 
-            for (int i = 0; i < inventorycount; i++)
+            for (int i = 0; i < count; i++)
             {
-              
-                newsoda = soda.GetSodaType(sodaType);
-                inventory.Add(newsoda);
+
+                can = new T();
+                inventory.Add(can);
 
                 // sodaInventory.Add(sodaToAdd);
             }
         }
 
-        public void ListInventory()
-        {
-            int rootbeerCount = inventory.OfType<RootBeer>().Count();
-            int colaCount = inventory.OfType<Cola>().Count();
-            int oragneCount = inventory.OfType<Orange>().Count();
-            Console.WriteLine($"Root Beer:{rootbeerCount} Cola:{colaCount} Orange{oragneCount}");
-
-        }
-
+        //Dispenses Can from Soda Machine to Backpack
         public void DistributeCan(Can can, Customer customer)
         {
             inventory.Remove(can);
             customer.backpack.AddCanToBackpack(can);
-
-
         }
-
-        //private Soda GenerateSodaObject(string sodaName)
-        //{
-        //    if(sodaName == "Cola")
-        //    {
-        //        return new Cola();
-        //    }
-        //}
-
+        //Adds payment amount to Register
         public void DepositPaymentInRegister()
         {
             foreach(Coin coin in payment)
@@ -128,7 +103,7 @@ namespace SodaMachine
             }
             payment.Clear();
         }
-
+        //Calculates the Value of the Coins in the Register
         public void RegisterValue()
         {
             double registerValue = 0;
@@ -139,7 +114,7 @@ namespace SodaMachine
             registerValue = Math.Round(registerValue, 2);
             Console.WriteLine(registerValue);
         }
-
+        //Calculates Value of Coins Paid in
         public double PaymentValue()
         {
             double paymentValue = 0;
@@ -149,42 +124,38 @@ namespace SodaMachine
             }
             return paymentValue;
         }
-
-        //public void DisplaySoda(Can can, string type)
-        //{
-        //    if (inventory.Contains(can.SodaType))
-        //    {
-        //        Console.WriteLine($"{can.SodaType}");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"{can.SodaType} (OUT OF STOCK)");
-        //    }
-        //}
-
+        //Checks to see if Transaction Can Continue based on Scenarios from User Stories
         public void CheckTransaction(Can can, Customer customer)
         {
-            
-            
-            if (PaymentValue() == can.SodaCost)
+            if (CheckInventory(can))
             {
-                DistributeCan(can, customer);
-                DepositPaymentInRegister();
+                if (PaymentValue() == can.SodaCost)
+                {
+                    DistributeCan(can, customer);
+                    DepositPaymentInRegister();
+                }
+                else if (PaymentValue() < can.SodaCost)
+                {
+                    UserInterface.DisplayMessage("Insufficent Funds Deposited, Come back when you can afford it");
+                    ReturnCoinsToWallet(customer);
+                }
+                else if (PaymentValue() > can.SodaCost && SufficientChangeExists(can, customer))
+                {
+                    DistributeCan(can, customer);
+                    DepositPaymentInRegister();
+                    GiveChange(can, customer);
+
+                }
             }
-            else if(PaymentValue() < can.SodaCost)
+            else
             {
-                UserInterface.DisplayMessage("Insufficent Funds Deposited, Come back when you can afford it");
+                UserInterface.DisplayMessage("Item of stock");
                 ReturnCoinsToWallet(customer);
             }
-            else if(PaymentValue() > can.SodaCost && SufficientChangeExists(can, customer))
-            {
-                DistributeCan(can, customer);
-                DepositPaymentInRegister();
-                GiveChange(can, customer);
-
-            }
+            
+            
         }
-
+        //Redeposits Coins to Wallet in case of failed transaction
         public void ReturnCoinsToWallet(Customer customer)
         {
             foreach(Coin coin in payment)
@@ -194,7 +165,7 @@ namespace SodaMachine
 
             }
         }
-
+        //Checks to see if there is enough change in Soda Machine Register to Issue necessary change to Customer
         public bool SufficientChangeExists(Can can, Customer customer)
         {
             if (Change.ChangeNeeded(can.SodaCost, PaymentValue()) > 0  && CorrectChangeAvailable())
@@ -203,7 +174,7 @@ namespace SodaMachine
             }
             return false;
         }
-
+        //Checks to make sure the machine has the right coin counts to issue the exact amount of necessary change
         public bool CorrectChangeAvailable()
         {
             if (0 == 0)
@@ -212,12 +183,12 @@ namespace SodaMachine
             }
             return false;
         }
-
+        //Issues Change to Customer
         public void GiveChange(Can can, Customer customer)
         {
 
         }
-
+        //Checks to see if the can exists in inventory
         public bool CheckInventory(Can can)
         {
             Can desiredCan = inventory.Find(delegate (Can c) { return c.SodaType == can.SodaType; });
@@ -228,7 +199,7 @@ namespace SodaMachine
             return false;
             
         }
-
+        //Gets the index of the first can that matches the desired can in inventory
         public int GetDesiredCanID(Can can)
         {
             int canID;
@@ -237,22 +208,40 @@ namespace SodaMachine
 
             return canID;
         }
+        //Gets Can object of matching desired can
+        public Can GetDesiredCan(Can can)
+        {
+            Can desiredCan = inventory.Find(delegate(Can can1) { return can1.SodaType == can.SodaType; });
+            return desiredCan;
+        }
+        //Calculates the Highest Price of any item in inventory
+        public void HighestPrice()
+        {
+            if(inventory.Count == 0)
+            {
+                UserInterface.DisplayMessage("Soda Machine is Empty.  Please Come Again");
+            }
+            else
+            {
+                maxPrice = .00;
+                foreach(Can can in inventory)
+                {
+                    if(can.SodaCost > maxPrice)
+                    {
+                        maxPrice = can.SodaCost;
+                    }
+                }
+            }
+        }
+        //Takes a coin from wallet and puts it into the temporary payment list
+        public void AddCoinToPayment(Coin coin)
+        {
+            if (maxPrice > PaymentValue())
+            {
+                payment.Add(coin);
+            }
+            UserInterface.DisplayMessage("Current amount deposited meets or exceeds max item price.  Please select desired item");
+        }
 
-        //public void DisplayOfferings()
-        //{
-        //    int inventorycount = inventory.Count;
-        //    foreach (Can can in inventory)
-        //    {
-        //        for (int i = 0; i < inventorycount; i++)
-        //        {
-        //            if(i == (inventorycount - 1))
-        //            {
-                        
-                        
-        //            }
-
-        //        }
-        //    }
-        //}
     }
 }
